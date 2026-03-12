@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: order-service
+
+  config:
+    import: "configserver:http://localhost:8888"
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/microsvc
+    username: root
+    password: Coder@108
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+resilience4j:
+
+  retry:
+    instances:
+      inventoryServiceRetry:
+        max-attempts: 3
+        wait-duration: 2s
+
+  circuitbreaker:
+    instances:
+      inventoryServiceCB:
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        wait-duration-in-open-state: 10s
+
+  ratelimiter:
+    instances:
+      inventoryServiceRateLimiter:
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    io.github.resilience4j.retry: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
